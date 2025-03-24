@@ -1,0 +1,3 @@
+dEQP-VK.video.encode.h264.*
+dEQP-VK.video.decode.*.rc_disable
+
