@@ -1,1 +1,1 @@
-dEQP-VK.memory.binding.regular.overallocated.*
+dEQP-VK.memory.binding.*.overallocated.*
