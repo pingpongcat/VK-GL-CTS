@@ -44,6 +44,7 @@ DEFAULT_OUTPUT_DIR = { "" : os.path.join(os.path.dirname(__file__), "..", "frame
                        "SC" : os.path.join(os.path.dirname(__file__), "..", "framework", "vulkan", "generated", "vulkansc") }
 
 EXTENSIONS_TO_READ_FROM_XML_NOT_JSON = """
+VK_KHR_cooperative_matrix
 VK_KHR_video_encode_av1
 VK_KHR_video_encode_quantization_map
 """.split()
@@ -4037,7 +4038,10 @@ def writeApiExtensionDependencyInfo(api, filename):
         yield 'static const std::tuple<uint32_t, uint32_t, uint32_t, uint32_t>\treleasedApiVersions[]\t='
         yield '{'
         for f in reversed(api.features):
-            apiVariant = '0' if f.api == 'vulkan' else '1'
+            apis = f.api.split(',')
+            if not api.apiName in apis:
+                continue;
+            apiVariant = '0' if api.apiName == 'vulkan' else '1'
             major, minor = f.number.split('.')
             version = (int(apiVariant) << 29) | (int(major) << 22) | (int(minor) << 12)
             yield '\tstd::make_tuple({}, {}, {}, {}),'.format(version, apiVariant, major, minor)

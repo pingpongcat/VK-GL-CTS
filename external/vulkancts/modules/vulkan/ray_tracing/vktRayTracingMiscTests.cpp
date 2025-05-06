@@ -8249,24 +8249,24 @@ de::MovePtr<BufferWithMemory> RayTracingMiscTestInstance::runTest(void)
         {
             deviceInterface.cmdFillBuffer(*cmdBufferPtr, **resultBufferPtr, 0, /* dstOffset */
                                           VK_WHOLE_SIZE, 0);                   /* data */
-
-            {
-                const auto postFillBarrier = makeBufferMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT, /* srcAccessMask */
-                                                                     VK_ACCESS_SHADER_WRITE_BIT,   /* dstAccessMask */
-                                                                     **resultBufferPtr, 0,         /* offset */
-                                                                     VK_WHOLE_SIZE);
-
-                cmdPipelineBufferMemoryBarrier(deviceInterface, *cmdBufferPtr,
-                                               VK_PIPELINE_STAGE_TRANSFER_BIT,               /* srcStageMask */
-                                               VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR, /* dstStageMask */
-                                               &postFillBarrier);
-            }
         }
         else
         {
             // ... otherwise copy given startdata to the gpubuffer
             const VkBufferCopy bufferCopy{0, 0, resultBufferSize};
             deviceInterface.cmdCopyBuffer(*cmdBufferPtr, **startBufferPtr, **resultBufferPtr, 1, &bufferCopy);
+        }
+
+        {
+            const auto postMemoryBarrier = makeBufferMemoryBarrier(VK_ACCESS_TRANSFER_WRITE_BIT, /* srcAccessMask */
+                                                                   VK_ACCESS_SHADER_WRITE_BIT,   /* dstAccessMask */
+                                                                   **resultBufferPtr, 0,         /* offset */
+                                                                   VK_WHOLE_SIZE);
+
+            cmdPipelineBufferMemoryBarrier(deviceInterface, *cmdBufferPtr,
+                                           VK_PIPELINE_STAGE_TRANSFER_BIT,               /* srcStageMask */
+                                           VK_PIPELINE_STAGE_RAY_TRACING_SHADER_BIT_KHR, /* dstStageMask */
+                                           &postMemoryBarrier);
         }
 
         {
@@ -8823,7 +8823,7 @@ tcu::TestStatus reuseCreationBufferInstance(Context &context, const bool disturb
         bufferProps.extBuffer.buffer  = creationBuffer.get();
         bufferProps.extBuffer.size    = creationBufferSize;
 
-        bottomLevelAS->create(vkd, device, alloc, bufferProps, 0u, 0u, nullptr, MemoryRequirement::Any);
+        bottomLevelAS->create(vkd, device, alloc, bufferProps, 0u, 0u, 0u, 0u, nullptr, MemoryRequirement::Any);
         bottomLevelAS->build(vkd, device, bottomBuildCmd.get());
     }
     else
@@ -8844,7 +8844,7 @@ tcu::TestStatus reuseCreationBufferInstance(Context &context, const bool disturb
         bufferProps.extBuffer.buffer  = creationBuffer.get();
         bufferProps.extBuffer.size    = creationBufferSize;
 
-        bottomLevelOtherAS->create(vkd, device, alloc, bufferProps, 0u, 0u, nullptr, MemoryRequirement::Any);
+        bottomLevelOtherAS->create(vkd, device, alloc, bufferProps, 0u, 0u, 0u, 0u, nullptr, MemoryRequirement::Any);
         // Note how we have created the second bottom level accel structure reusing the buffer but we haven't built it.
     }
 
@@ -8864,7 +8864,7 @@ tcu::TestStatus reuseCreationBufferInstance(Context &context, const bool disturb
         bufferProps.extBuffer.buffer  = creationBuffer.get();
         bufferProps.extBuffer.size    = creationBufferSize;
 
-        topLevelAS->create(vkd, device, alloc, bufferProps, 0u, 0u, nullptr, MemoryRequirement::Any);
+        topLevelAS->create(vkd, device, alloc, bufferProps, 0u, 0u, 0u, 0u, nullptr, MemoryRequirement::Any);
         topLevelAS->build(vkd, device, topBuildCmd.get());
 
         bufferProps.useExternalBuffer = false;
@@ -8895,7 +8895,7 @@ tcu::TestStatus reuseCreationBufferInstance(Context &context, const bool disturb
 
         topLevelOtherAS->setInstanceCount(1);
         topLevelOtherAS->addInstance(blasOtherSharedPtr);
-        topLevelOtherAS->create(vkd, device, alloc, bufferProps, 0u, 0u, nullptr, MemoryRequirement::Any);
+        topLevelOtherAS->create(vkd, device, alloc, bufferProps, 0u, 0u, 0u, 0u, nullptr, MemoryRequirement::Any);
         // Note how we have created the second top level accel structure reusing the buffer but we haven't built it.
     }
 

@@ -885,11 +885,6 @@ void CooperativeVectorTestCase::initPrograms(SourceCollections &programCollectio
         }
     }
 
-    if (m_data.stage == STAGE_TESS_EVAL)
-    {
-        css << "   }\n";
-    }
-
     if (m_data.testType == TT_OUTERPRODUCT)
     {
         css << "   coopVecLoadNV(vecB, inputB.x, outputBase * inputElementSize);\n";
@@ -911,6 +906,12 @@ void CooperativeVectorTestCase::initPrograms(SourceCollections &programCollectio
         }
         css << ");\n";
     }
+
+    if (m_data.stage == STAGE_TESS_EVAL)
+    {
+        css << "   }\n";
+    }
+
     if (m_data.testType == TT_COMPOSITE_ARRAY)
     {
         css << "   " << vecAType.str() << " vecAArr[2];\n    vecAArr[1] = vecA; vecAArr[0] = " << vecAType.str()
@@ -3272,14 +3273,6 @@ tcu::TestStatus CooperativeVectorTestInstance::iterate(void)
                         }
                         if (tempRes == QP_TEST_RESULT_PASS)
                         {
-                            // If FP8 passes on the second try, without quantization, then
-                            // call it a quality warning.
-                            if (doQuantize == 0 && res == QP_TEST_RESULT_PASS &&
-                                (m_data.inputInterpretation == VK_COMPONENT_TYPE_FLOAT_E4M3_NV ||
-                                 m_data.inputInterpretation == VK_COMPONENT_TYPE_FLOAT_E5M2_NV))
-                            {
-                                res = QP_TEST_RESULT_QUALITY_WARNING;
-                            }
                             break;
                         }
                         // If FP8 fails on the first try, with quantization, then try again without.
